@@ -1,0 +1,57 @@
+GAS LISTING rv64i.asm 			page 1
+
+
+   1              	# RISC-V Assembly              Description
+   2              	.global _start
+   3              	
+   4 0000 13010010 	_start: addi x2, x0, 0x100     # GPIO ID registers address
+   5 0004 13118100 		slli x2, x2, 8         # load GPIO base address (shift it one byte left) - x2 = 0x010000
+   6              	        # add 2 positives without overflow
+   7 0008 13020008 		addi x4, x0, 0x80      # normal addition - source 1, 128
+   8 000c 93029000 		addi x5, x0, 9         # normal addition - source 2
+   9 0010 33834200 		add  x6, x5, x4        # normal addition - result, x6 = 137
+  10              		# prepare print
+  11 0014 13050300 		addi x10, x6, 0        # mov x10, x6 - functions argument -> GPIO
+  12              	        # print
+  13 0018 2302A100 		sb   x10, 4(x2)        # write LSB of GPIO ID to GPIO
+  14              		# add 2 negatives without overflow
+  15 001c 13020008 		addi x4, x0, 128       # normal addition - source 1
+  16 0020 1342F2FF 		xori x4, x4, -1
+  17 0024 13021200 		addi x4, x4, 1         # 2comp - source 1, -128
+  18 0028 93029000 		addi x5, x0, 9         # normal addition - source 2
+  19 002c 93C2F2FF 		xori x5, x5, -1
+  20 0030 93821200 		addi x5, x5, 1         # 2comp - source 2, -9
+  21 0034 33834200 		add  x6, x5, x4        # normal addition - result, x6 = -137 (ff..ff77)
+  22              		# prepare print
+  23 0038 13050300 		addi x10, x6, 0        # mov x10, x6 - functions argument -> GPIO
+  24              	        # print
+  25 003c 2302A100 		sb   x10, 4(x2)        # write LSB of GPIO ID to GPIO
+  26              		# add 2 positive with overflow
+  27 0040 13020008 		addi x4, x0, 128       # normal addition - source 1
+  28 0044 9302F0FF 		addi x5, x0, -1        # fill all 64 bit with one
+  29 0048 93D21200 		srli x5, x5, 1         # shift one position to the right
+  30 004c 9303E007 		addi x7, x0, 0x7e
+  31 0050 B3827240 		sub  x5, x5, x7        # normal addition - source 2 (0x7fffffffffffff81)
+  32 0054 33834200 		add  x6, x5, x4        # normal addition - result, x6 = 0x8000000000000001
+  33              		# prepare print
+  34 0058 13050300 		addi x10, x6, 0        # mov x10, x6 - functions argument -> GPIO
+  35              	        # print
+  36 005c 2302A100 		sb   x10, 4(x2)        # write LSB of GPIO ID to GPIO
+  37              		# add 2 negatives with overflow
+  38 0060 13020008 		addi x4, x0, 128       # normal addition - source 1
+  39 0064 1342F2FF 		xori x4, x4, -1
+  40 0068 13021200 		addi x4, x4, 1         # 2comp - source 1, -128
+  41 006c 9302F0FF 		addi x5, x0, -1        # fill all 64 bit with one
+  42 0070 93D21200 		srli x5, x5, 1         # shift one position to the right
+  43 0074 9303D007 		addi x7, x0, 0x7d
+  44 0078 B3827240 		sub  x5, x5, x7        # normal addition - source 2 (0x7fffffffffffff82)
+  45 007c 93C2F2FF 		xori x5, x5, -1
+  46 0080 93821200 		addi x5, x5, 1         # 2comp = 800000000000007e
+  47 0084 33834200 		add  x6, x5, x4        # normal addition - result, x6 = 0x0000000000000002
+  48              		# prepare print
+  49 0088 13050300 		addi x10, x6, 0        # mov x10, x6 - functions argument -> GPIO
+  50              	        # print
+  51 008c 2302A100 		sb   x10, 4(x2)        # write LSB of GPIO ID to GPIO
+  52              		### done
+  53 0090 6F004000 	        jal  x0, done          # jump to end
+  54 0094 63002100 	done:   beq  x2, x2, done      # 50 infinite loop
