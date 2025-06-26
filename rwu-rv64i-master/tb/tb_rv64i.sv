@@ -71,18 +71,15 @@ module tb_rv64i ();
     if(cs_s === 1)
     begin
       $display("CS detected");
-      if((gpioAddr_s === 4)) 
-        case(gpio_s)
-          137     : begin $display("Instr 19 - add 2 positives without overflow: 0x%0h", gpio_s);  end
-          119     : begin $display("Instr 19 - add 2 negatives without overflow: 0x%0h", gpio_s);  end
-            1     : begin $display("Instr 19 - add 2 positives with overflow: 0x%0h", gpio_s);     end
-          254     : begin $display("Instr 19 - add 2 negatives with overflow: 0x%0h", gpio_s);  $display("Simulation succeeded"); #100; #(1*2*clk_2_t); $fdisplay(fd,"%s - add: Test ok", get_time()); $fclose(fd); $stop; end
-          default : begin $display("Unexpected GPIO: 0x%0h", gpio_s); $fdisplay(fd,"%s - add: Test fail", get_time()); $fclose(fd); $stop;  end
-        endcase
+      if((gpioAddr_s === 4))
+      begin 
+          $display("GPIO: 0x%0h", gpio_s); $fdisplay(fd,"%s - add: Test fail", get_time()); $fclose(fd); 
+          $finish;  
+      end
       else // (gpioAddr_s === 4)
       begin
         $display("Simulating: time=%0t addr=0x%0h data=0x%0h cs=0x%0h+++",$time, gpioAddr_s, gpio_s, cs_s);
-        $stop;
+        $finish;
       end
     end // cs_s
     //end // loading
@@ -93,14 +90,14 @@ module tb_rv64i ();
 //------------------------------------------
   function string get_time();
     int    file_pointer;
-    
+    int rc;
     //Stores time and date to file sys_time
     //void'($system("date +%X--%x > sys_time"));
     void'($system("date +%x > sys_time"));
     //Open the file sys_time with read access
     file_pointer = $fopen("sys_time","r");
     //assin the value from file to variable
-    void'($fscanf(file_pointer,"%s",get_time));
+    rc = ($fscanf(file_pointer,"%s",get_time));
     //close the file
     $fclose(file_pointer);
     void'($system("rm sys_time"));

@@ -1,4 +1,4 @@
-log_wave -recursive *
-add_wave {{*}}
-run all
-#exit
+add_wave -recursive tb_rv64i
+run 10ms
+stop
+
