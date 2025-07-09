@@ -113,4 +113,3 @@ clean :
 activate :
 	@source /tools/Xilinx/Vivado/2024.2/settings64.sh
 	@echo "Vivado environment sourced"
-

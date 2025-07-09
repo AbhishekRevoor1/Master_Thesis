@@ -38,7 +38,7 @@ package as_pack;
   // external
   localparam int       nr_gpios         = 8; // 0 - 255
   localparam int       gpio_addr_width  = 4;
-  //localparam int       cs_width         = 2;
+  localparam int       cs_width         = 2;
 
   // tapc
   localparam int       ir_width = 8;

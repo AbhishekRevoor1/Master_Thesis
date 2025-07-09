@@ -15,7 +15,7 @@ LD          = riscv64-unknown-elf-ld
 CP          = riscv64-unknown-elf-objcopy
 
 ASFLAGS     = -march=rv64i -mlittle-endian -g
-LDFLAGS = -b elf64-littleriscv -T ../linker.ld
+LDFLAGS     = -b elf64-littleriscv
 CPFLAGS     = -O verilog --verilog-data-width 4
 
 # ----------- file lists (auto-generated) -----------------------------
@@ -62,6 +62,8 @@ all: $(VERILOGS)
 .PHONY: clean
 clean:
 	@echo "Cleaning generated files"
-	rm -f *.o *.lst $(ELFS) $(VERILOGS)
-	rm -f ../sim/riscvtest_tb_*.mem ../sim/riscvtest.mem
+	rm -f *.o *.lst
+	rm -f *.v *.o *.elf
+	
+.PRECIOUS: %.elf %.o
 
