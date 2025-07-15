@@ -58,7 +58,12 @@ SOURCES_SV := \
 	../src/asSBpiMem.sv \
 	../src/asCguCore.sv \
 	../src/asCgu.sv \
-	../tb/tb_rv64i.sv            # << only one top-bench is needed
+	../tb/tb_regfile.sv \
+	../tb/tb_alu.sv \
+	../tb/tb_alurv.sv \
+	../tb/tb_control.sv \
+	../tb/tb_rv64i_allinstructions.sv \
+
 
 # ---------------------------------------------------------------------
 # Default goal
