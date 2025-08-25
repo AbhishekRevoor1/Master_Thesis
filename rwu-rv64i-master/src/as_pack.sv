@@ -28,8 +28,8 @@ package as_pack;
   localparam int       nr_regs          = 32;
 
   // memories & peripherals
-  localparam int       dmemdepth        = 1024; // amount of double words (if reg_width = 64); 1024 doubles = 8192 bytes => addr_width = 13
-  localparam int       dmem_addr_width  = 13;   // address for all bytes (8192 double words * 8 Bytes = 65536 Bytes => 16 bit address)
+  localparam int       dmemdepth        = 8192; // amount of double words (if reg_width = 64); 1024 doubles = 8192 bytes => addr_width = 13
+  localparam int       dmem_addr_width  = 16;   // address for all bytes (8192 double words * 8 Bytes = 65536 Bytes => 16 bit address)
   localparam int       imemdepth        = 8192; // 12 bit address, but the lower 2 will not be used; word alligned
   localparam int       imem_addr_width  = 15;   // (8192 words accessible => 15 - 2 bits address)
   localparam int       cgu_addr_width   = 4;

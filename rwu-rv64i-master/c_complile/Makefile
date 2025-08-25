@@ -14,7 +14,7 @@ AS      := riscv64-unknown-elf-gcc
 CP      := riscv64-unknown-elf-objcopy
 
 # ----------- Flags ----------------------------------------------------
-CFLAGS  := -march=rv64izicsr -mabi=lp64 -nostdlib -ffreestanding -O2 -g
+CFLAGS  := -march=rv64izicsr -mabi=lp64 -nostdlib -ffreestanding -O2 -g -msmall-data-limit=0
 ASFLAGS := $(CFLAGS)
 LDFLAGS := -T linker.ld -nostdlib -ffreestanding -march=rv64izicsr -mabi=lp64
 CPFLAGS := -O verilog --verilog-data-width 4

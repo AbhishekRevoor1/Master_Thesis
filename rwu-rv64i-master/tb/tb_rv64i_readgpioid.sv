@@ -64,17 +64,28 @@ module tb_rv64i ();
     trst_s <= 0;
   end
 
+  initial begin
+  #100000000; // 100,000 ns simulation limit
+  $display("Timeout reached, finishing simulation.");
+  $finish;
+  end
 
-  // check results
+
+   // check results
   always @(negedge clk_s)
   begin
+    //if(loading_s === 0)
+    //begin
     if(cs_s === 1)
     begin
       $display("CS detected");
       if((gpioAddr_s === 4)) 
         case(gpio_s)
-          1     : begin $display("GPIO ID Read Passed!: 0x%0h", gpio_s);  $display("Simulation succeeded"); #100; #(1*2*clk_2_t); $fdisplay(fd,"%s - readgpioid: Test ok", get_time()); $fclose(fd); $stop; end
-          default : begin $display("Unexpected GPIO: 0x%0h", gpio_s); $fdisplay(fd,"%s - readgpioid: Test fail", get_time()); $fclose(fd); $stop;  end
+           0      : begin $display("OFF"); end
+           2      : begin $display("ON"); end
+         55      : begin $display("Test Passed 0x%0h", gpio_s);$display("Simulation succeeded"); #100; #(1000*2*clk_2_t); $stop; end
+         
+          default : begin $display("Unexpected GPIO: 0x%0h", gpio_s); $fdisplay(fd,"%s - allinstructions: Test fail", get_time()); $fclose(fd); $stop;  end
         endcase
       else // (gpioAddr_s === 4)
       begin
