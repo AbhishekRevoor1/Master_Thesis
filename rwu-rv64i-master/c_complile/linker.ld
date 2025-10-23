@@ -1,47 +1,51 @@
-/* linker.ld — Harvard-safe minimal linker script for RWU-RV64I */
-
 OUTPUT_ARCH(riscv)
 ENTRY(_start)
 
+IMEM_ORIGIN = 0x00000000;
+IMEM_SIZE   = 32K;
+
+DMEM_ORIGIN = 0x00000000;
+DMEM_SIZE   = 8K;
+
+/* Memory regions */
 MEMORY
 {
-    IMEM (rx) : ORIGIN = 0x00000000, LENGTH = 32K   /* instruction memory */
-    DMEM (rw) : ORIGIN = 0x00000000, LENGTH = 64K   /* data memory */
+  IMEM (rx) : ORIGIN = IMEM_ORIGIN, LENGTH = IMEM_SIZE
+  DMEM (rw) : ORIGIN = DMEM_ORIGIN, LENGTH = DMEM_SIZE
 }
 
-/* Reserve some space at start of DMEM for runtime/linker bookkeeping */
-__dmem_reserved = 0x100;
-
-/* Provide stack pointer (stack grows down) */
-__stack_top = ORIGIN(DMEM) + LENGTH(DMEM);
+/* Convenience symbols */
+PROVIDE(_dmem_origin = ORIGIN(DMEM));
+PROVIDE(_dmem_size   = LENGTH(DMEM));
 
 SECTIONS
 {
-    /* ---- CODE ---- */
-    .text :
-    {
+    /* Put text/rodata in IMEM (LMA=VMA=IMEM) */
+    . = ORIGIN(IMEM);
+    .text : {
+        PROVIDE(_text_start = .);
         *(.text*)
         *(.rodata*)
+        *(.srodata*)
+        PROVIDE(_text_end = .);
     } > IMEM
 
-    /* ---- DATA ---- */
-    /* Only uninitialised data (bss) is supported. 
-       We place .bss in DMEM after reserved space. */
-    . = ORIGIN(DMEM) + __dmem_reserved;
-
-    .bss (NOLOAD) :
-    {
-        __bss_start = .;
-        *(.bss*)
+    /* Put bss at start of DMEM (NOLOAD) */
+    . = ORIGIN(DMEM);
+    .bss (NOLOAD) : {
+        PROVIDE(__bss_start = .);
         *(.sbss*)
+        *(.bss*)
         *(COMMON)
-        __bss_end = .;
+        PROVIDE(__bss_end = .);
     } > DMEM
 
-    /* Symbol exported for user programs: safe start of DMEM */
-    _user_dmem_start = ORIGIN(DMEM) + __dmem_reserved;
-    
-    /* Define global pointer in middle of DMEM so GCC is happy */
-    __global_pointer$ = ORIGIN(DMEM) + LENGTH(DMEM) / 2;
-}
+    /* Stack top at end of DMEM */
+    PROVIDE(__stack_top = ORIGIN(DMEM) + LENGTH(DMEM));
 
+    /* User DMEM start is immediately after .bss (no reserved gap) */
+    PROVIDE(_user_dmem_start = __bss_end);
+
+    /* Discard sections not needed */
+    /DISCARD/ : { *(.eh_frame) *(.comment) }
+}

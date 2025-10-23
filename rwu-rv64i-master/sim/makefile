@@ -62,7 +62,7 @@ SOURCES_SV := \
 	../tb/tb_alu.sv \
 	../tb/tb_alurv.sv \
 	../tb/tb_control.sv \
-	../tb/tb_rv64i_allinstructions.sv \
+	../tb/tb_rv64i_readgpioid.sv \
 
 
 # ---------------------------------------------------------------------

@@ -1,43 +1,42 @@
-/* start.S — minimal startup for RWU-RV64I (rv64i, lp64)
-   - Set SP to __stack_top
-   - Set GP (optional)
-   - Zero .bss
-   - Call main()
-   No attempt to copy .data (forbidden on Harvard setup).
-*/
+/* crt0.s -- minimal RISC-V startup
+ *
+ * Behavior:
+ *  - Set sp = __stack_top (from linker)
+ *  - Set gp = __global_pointer$ (GP for small-data; harmless if unused)
+ *  - Zero .bss region [__bss_start, __bss_end)
+ *  - Jump to main()
+ *
+ * NOTE: This startup intentionally does NOT copy .data from IMEM to DMEM.
+ *       Programs must not rely on writable initialized globals unless the
+ *       linker + crt0 are changed to perform the copy.
+ */
 
-    .section .init, "ax"
-    .globl _start
-    .align  2
-
-    .option push
-    .option norelax
+    .section .init
     .option norvc
-    .attribute arch, "rv64i"
+    .global _start
+    .type   _start,@function
 
 _start:
-    /* set stack pointer to top of DMEM, keep 16-byte alignment */
+    /* Load stack pointer from linker symbol __stack_top */
     la      sp, __stack_top
+    /* Align stack to 16 bytes just in case */
     andi    sp, sp, -16
 
-    /* set gp for small-data usage (harmless if unused) */
-    la      gp, __global_pointer$
-
-    /* clear .bss region (8-byte stores) */
-    la      t0, __bss_start
-    la      t1, __bss_end
+    /* Zero .bss from __bss_start to __bss_end, 8-bytes at a time */
+    la      t0, __bss_start  /* t0 -> start */
+    la      t1, __bss_end    /* t1 -> end */
 1:
     beq     t0, t1, 2f
-    sd      zero, 0(t0)
+    sd      x0, 0(t0)
     addi    t0, t0, 8
     blt     t0, t1, 1b
 2:
-    /* jump to C main */
+
+    /* Call main() */
     call    main
 
-/* if main returns, loop forever */
-hang:
-    j       hang
+halt:
+    /* If main returns, hang here forever */
+    j       halt
 
-    .option pop
-
+    .size _start, .-_start
